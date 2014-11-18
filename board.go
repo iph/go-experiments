@@ -11,7 +11,7 @@ type Position struct {
 	col int
 }
 
-// initializes a normal sudoku board
+// initializes a blank, unassigned sudoku board.
 func Init() Board {
 	new_board := Board{}
 	for i := 0; i < 9; i++ {
@@ -23,15 +23,7 @@ func Init() Board {
 	return new_board
 }
 
-func (b *Board) SetRow(pos int, rows ...int) (new_board Board) {
-	new_board = b.Clone()
-	for i, row := range rows {
-		new_board.board[pos][i] = row
-	}
-
-	return
-}
-
+// Self describing!
 func (b *Board) Clone() Board {
 	new_board := Board{}
 	for i, _ := range b.board {
@@ -43,12 +35,15 @@ func (b *Board) Clone() Board {
 	return new_board
 }
 
-func (b *Board) Assigned(pos Position, num int) Board {
+// Assigns a cell the given number, returns a new board because functional programming.
+func (b *Board) Assign(pos Position, num int) Board {
 	new_board := b.Clone()
 	new_board.board[pos.row][pos.col] = num
 	return new_board
 }
 
+// Checks to see if all cells have an assigned value. Complete =/= Correct.
+// TODO: Make an IsCorrect function dumby.
 func (b *Board) IsComplete() bool {
 	for _, row := range b.board {
 		for _, cell := range row {
@@ -61,6 +56,19 @@ func (b *Board) IsComplete() bool {
 	return true
 }
 
+// A small utility function for checking if the row of a given board allows that number in it
+// e.g. a potential row configuration:
+//         1 2 3 4 - 5 6 7 9   -- if 8 is passed in, then returns true. If 9, false
+func (b *Board) uniqueRows(possible_num int, row int) bool {
+	for _, cell := range b.board[row] {
+		if possible_num == cell {
+			return false
+		}
+	}
+	return true
+}
+
+// Refer to uniqueRows, except columns
 func (b *Board) uniqueColumns(possible_num int, column int) bool {
 	for _, row := range b.board {
 		for col, cell := range row {
@@ -72,19 +80,12 @@ func (b *Board) uniqueColumns(possible_num int, column int) bool {
 	return true
 }
 
-func (b *Board) uniqueRows(possible_num int, row int) bool {
-	for _, cell := range b.board[row] {
-		if possible_num == cell {
-			return false
-		}
-	}
-	return true
-}
-
+// A small utility function for checking if the box of a cell is unique based on the cells around it.
+// Look at sudoku rules for more information
 func (b *Board) uniqueBox(possible_num int, pos Position) bool {
-	// check the box...
-	starting_row := pos.row / 3
-	starting_col := pos.col / 3
+	// check the box using math!!!
+	starting_row := (pos.row / 3) * 3
+	starting_col := (pos.col / 3) * 3
 	ending_row := starting_row + 3
 	ending_col := starting_col + 3
 
@@ -98,15 +99,42 @@ func (b *Board) uniqueBox(possible_num int, pos Position) bool {
 	return true
 }
 
+// PossibleBoard returns whether the board is solveable
+func (b *Board) PossibleBoard() bool {
+	for i, row := range b.board {
+		for j, cell := range row {
+			if cell == UNASSIGNED && len(b.PossibleCells(Position{i, j})) == 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// PossibleCells returns a slice of possible numbers that are allowed to be assigned
+// in a board at the position input
 func (b *Board) PossibleCells(pos Position) (possibles []int) {
 	possibles = []int{}
 	for i := 1; i <= 9; i++ {
-		if b.uniqueColumns(i, pos.col) && b.uniqueRows(i, pos.row) && b.uniqueBox(i, pos) {
+		if b.uniqueRows(i, pos.row) && b.uniqueColumns(i, pos.col) && b.uniqueBox(i, pos) {
 			possibles = append(possibles, i)
 		}
 	}
 
 	return possibles
+}
+
+// Finds the first {row, col} that is "empty" or unassigned
+func (board *Board) findUnassignedPosition() (position Position) {
+	for i, row := range board.board {
+		for j, cell := range row {
+			if cell == UNASSIGNED {
+				return Position{i, j}
+			}
+		}
+	}
+
+	return Position{-1, -1}
 }
 
 func (b *Board) Print() {
