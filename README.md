@@ -1,5 +1,5 @@
 What beauty looks like:
-     ```
+
      8  -  -  -  -  6  3  7  -
      -  -  3  -  4  5  -  -  2
      -  -  2  3  -  -  -  -  -
@@ -20,5 +20,3 @@ What beauty looks like:
      5  2  6  8  9  1  7  4  3
      3  8  1  5  7  4  2  9  6
      0.04 real         0.04 user         0.00 sys
-
-```
