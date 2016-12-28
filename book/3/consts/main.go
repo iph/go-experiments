@@ -9,7 +9,8 @@ const (
 	TB         = GB * Multiplier
 	PB         = TB * Multiplier
 	EB         = PB * Multiplier
-	YB         = EB * Multiplier
+	ZB         = EB * Multiplier
+	YB         = ZB * Multiplier
 )
 
 func main() {
