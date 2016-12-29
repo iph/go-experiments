@@ -10,7 +10,10 @@ import (
 func main() {
 
 	algorithm := flag.Int("sha", 256, "The digest you want to use. Supports 256, 384, and 512")
+	flag.Parse()
 	inputs := flag.Args()
+
+	fmt.Println(inputs)
 	for _, v := range inputs {
 		var digest string
 		if *algorithm == 256 {
@@ -24,7 +27,7 @@ func main() {
 			digest = string(result[:])
 		}
 
-		fmt.Printf("%v\n", digest)
+		fmt.Printf("%x\n", digest)
 	}
 
 }
